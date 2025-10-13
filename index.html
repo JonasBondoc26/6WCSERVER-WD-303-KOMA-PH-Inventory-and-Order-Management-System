@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOMA Navigation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="photos/KOMA Logo.png">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-left-group">
+            <div class="navbar-left">
+            <a href="#" class="logo">
+                <img src="photos/KOMA Logo.png" alt="KOMA Clothing Co. Logo">
+            </a>
+            </div>
+            <div class="navbar-center">
+            <ul class="nav-links">
+                <li><a href="#" class="active">HOME</a></li>
+                <li><a href="#">ABOUT</a></li>
+                <li><a href="#">SHOP</a></li>
+                <li><a href="#">PRODUCT</a></li>
+                <li><a href="#">FEATURE</a></li>
+            </ul>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <div class="nav-icons">
+            <div class="user-dropdown">
+                <a href="#" id="userIcon"><i class="far fa-user"></i></a>
+                <div class="dropdown-content" id="userDropdownContent">
+                <a href="#" class="login-option">Log In</a>
+                <a href="#" class="logged-in-option" style="display: none;">Profile Settings</a>
+                <a href="#" class="logged-in-option" style="display: none;">Log Out</a>
+                </div>
+            </div>
+            <a href="#"><i class="far fa-heart"></i></a>
+            <a href="#"><i class="fas fa-shopping-bag"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <h1 class="hero-tagline-top">KEEP ON MOVING AHEAD</h1>
+        <div class="hero-divider"></div>
+
+        <div class="hero-content">
+            <div class="hero-left">
+                <img src="photos/Ate.png" alt="Model wearing KOMA streetwear" class="hero-image">
+            </div>
+            <div class="hero-right">
+                <div class="hero-text-box">
+                    <h2>FILIPINO <br> STREETWEAR <br> REDEFINED</h2>
+                    <a href="#" class="shop-now-button">SHOP NOW</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h2>About KOMA PH</h2>
+        <p>
+            KOMA PH is a local streetwear brand blending modern fashion and Filipino identity. 
+            We focus on comfort, minimalist style, and sustainability — made with passion in Pampanga.
+        </p>
+        <a href="#" class="learn-more-btn">Learn More</a>
+    </section>
+
+    <section class="new-arrivals">
+        <h2 class="section-title">New Arrivals</h2>
+        
+        <div class="product-grid">
+            <div class="product-card">
+                <img src="photos/P1.jpg" alt="Black Koma Embroidered Sweatshirt" class="product-image">
+            </div>
+            <div class="product-card">
+                <img src="photos/P2.jpg" alt="Brown Koma Drift T-Shirt Back" class="product-image">
+            </div>
+            <div class="product-card">
+                <img src="photos/P3.jpg" alt="Black Koma Oversized Hoodie" class="product-image">
+            </div>
+        </div>
+        
+        <a href="#" class="view-all-button">View All Products</a>
+    </section>
+
+
+    <section class="testimonials">
+        <h2>💬 What People Say</h2>
+
+        <div class="testimonial-container">
+            <div class="testimonial">
+                <p>🔥 Love the fit and quality. Proud to wear local!</p>
+                <span>— @juanstyle</span>
+            </div>
+
+            <div class="testimonial">
+                <p>Smooth transaction! Shirt fits perfectly.</p>
+                <span>— @maria.ph</span>
+            </div>
+
+            <div class="testimonial">
+                <p>Comfy fabric and fast delivery 🚚✨</p>
+                <span>— @trendscout</span>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+    <footer class="main-footer">
+        <div class="footer-top">
+            <div class="footer-left">
+                <a href="#" class="footer-logo">
+                    <img src="photos/KOMA Logo.png" alt="KOMA Clothing Co. Footer Logo">
+                </a>
+                <ul class="footer-nav-links">
+                    <li><a href="#">HOME</a></li>
+                    <li><a href="#">ABOUT</a></li>
+                    <li><a href="#">SHOP</a></li>
+                    <li><a href="#">PRODUCT</a></li>
+                    <li><a href="#">FEATURE</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy;2025 KAMO PH. All rights reserved.</p>
+        </div>
+    </footer>
+
+    
+<script>
+    // Get the dropdown content and the icon link
+    const userIconLink = document.getElementById('userIcon');
+    const dropdownContent = document.getElementById('userDropdownContent');
+
+    // Toggle the dropdown when the icon is clicked
+    userIconLink.addEventListener('click', function(event) {
+        // Prevent the link from navigating away
+        event.preventDefault(); 
+        
+        // Toggle the 'show' class, which is defined in CSS to show the menu
+        dropdownContent.classList.toggle('show');
+    });
+
+    // Close the dropdown if the user clicks anywhere outside of it
+    window.addEventListener('click', function(event) {
+        if (!userIconLink.contains(event.target) && !dropdownContent.contains(event.target)) {
+            if (dropdownContent.classList.contains('show')) {
+                dropdownContent.classList.remove('show');
+            }
+        }
+    });
+
+    /* *** BONUS: Simple front-end demonstration of login status switching ***
+    In a real app, this logic would come from the server!
+    You can uncomment the lines below to test the "logged in" state.
+    */
+    /*
+    // Example login/logout state simulator:
+    const isLoggedIn = true; // Change this to 'false' to test the Log In option
+
+    const loginOption = document.querySelector('.login-option');
+    const loggedInOptions = document.querySelectorAll('.logged-in-option');
+
+    if (isLoggedIn) {
+        loginOption.style.display = 'none';
+        loggedInOptions.forEach(el => el.style.display = 'block');
+    } else {
+        loginOption.style.display = 'block';
+        loggedInOptions.forEach(el => el.style.display = 'none');
+    }
+    */
+</script>
+</body>
+</html>

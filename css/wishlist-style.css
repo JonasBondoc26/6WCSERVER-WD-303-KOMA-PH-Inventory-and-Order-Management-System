@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --color-background-sidebar: #F5F5F5;
+  --color-background-light: #F5F5F5;
+  --color-text-dark: #333333;
+  --color-text-light: #FFFFFF;
+  --color-koma-black: #242424;
+  --color-koma-accent: #DCE34D;
+  --color-koma-card-dark: #3A3A3A;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: var(--color-background-light);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* --- Container Layout --- */
+.profile-container {
+  display: flex;
+  width: 100%;
+  max-width: 1400px;
+  background-color: var(--color-background-light);
+  margin: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 250px;
+  background-color: var(--color-background-sidebar);
+  color: var(--color-text-dark);
+  padding: 30px 0;
+  flex-shrink: 0;
+}
+
+.logo {
+  margin-bottom: 50px;
+  padding-left: 40px;
+}
+
+.koma-logo-img {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  display: block;
+}
+
+.main-nav ul {
+  list-style: none;
+}
+
+.main-nav a {
+  display: block;
+  text-decoration: none;
+  color: #666;
+  font-size: 16px;
+  padding: 15px 40px;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+
+.main-nav a.active {
+  color: var(--color-text-dark);
+  font-weight: 700;
+}
+
+.main-nav a:hover {
+  color: var(--color-text-dark);
+}
+
+/* --- Content --- */
+.content {
+  flex-grow: 1;
+  padding: 40px;
+  background-color: var(--color-background-light);
+}
+
+/* --- Header --- */
+.user-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  background-color: var(--color-koma-black);
+  border-radius: 50%;
+  margin-right: 20px;
+  box-shadow: 0 0 0 5px var(--color-koma-accent);
+}
+
+.user-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.user-member-status {
+  font-size: 14px;
+  color: #666;
+}
+
+/* --- Wishlist Section --- */
+.wishlist-section {
+  background-color: var(--color-koma-black);
+  border-radius: 8px;
+  padding: 20px;
+  color: var(--color-text-light);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.section-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.section-header i {
+  color: #FF69B4;
+  margin-right: 10px;
+}
+
+/* --- Wishlist Grid --- */
+.wishlist-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.wishlist-item {
+  background-color: var(--color-koma-card-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+  padding-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.item-image {
+  width: 100%;
+  height: 200px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: var(--color-koma-card-dark);
+  margin-bottom: 10px;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--color-text-light);
+  padding: 0 10px;
+}
+
+.item-price {
+  color: var(--color-koma-accent);
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.add-to-cart-btn {
+  background-color: #555;
+  color: var(--color-text-light);
+  border: 1px solid #777;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transition: background-color 0.2s;
+}
+
+.add-to-cart-btn i {
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.add-to-cart-btn:hover {
+  background-color: #666;
+}

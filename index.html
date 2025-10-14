@@ -26,9 +26,9 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="active">HOME</a></li>
                 <li><a href="about.html">ABOUT</a></li>
-                <li><a href="#">SHOP</a></li>
-                <li><a href="#">PRODUCT</a></li>
-                <li><a href="#">FEATURE</a></li>
+                <li><a href="shop.html">SHOP</a></li>
+                <li><a href="product.html">PRODUCT</a></li>
+                <li><a href="feature.html">FEATURE</a></li>
             </ul>
             </div>
         </div>
@@ -38,7 +38,7 @@
             <div class="user-dropdown">
                 <a href="#" id="userIcon"><i class="far fa-user"></i></a>
                 <div class="dropdown-content" id="userDropdownContent">
-                <a href="#" class="login-option">Log In</a>
+                <a href="sign-in.html" class="login-option">Log In</a>
                 <a href="#" class="logged-in-option" style="display: none;">Profile Settings</a>
                 <a href="#" class="logged-in-option" style="display: none;">Log Out</a>
                 </div>
@@ -126,11 +126,11 @@
                     <img src="photos/KOMA Logo.png" alt="KOMA Clothing Co. Footer Logo">
                 </a>
                 <ul class="footer-nav-links">
-                    <li><a href="#">HOME</a></li>
-                    <li><a href="#">ABOUT</a></li>
-                    <li><a href="#">SHOP</a></li>
-                    <li><a href="#">PRODUCT</a></li>
-                    <li><a href="#">FEATURE</a></li>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="about.html">ABOUT</a></li>
+                    <li><a href="shop.html">SHOP</a></li>
+                    <li><a href="product.html">PRODUCT</a></li>
+                    <li><a href="feature.html">FEATURE</a></li>
                 </ul>
             </div>
             <div class="footer-right">
@@ -145,49 +145,6 @@
         </div>
     </footer>
 
-    
-<script>
-    // Get the dropdown content and the icon link
-    const userIconLink = document.getElementById('userIcon');
-    const dropdownContent = document.getElementById('userDropdownContent');
-
-    // Toggle the dropdown when the icon is clicked
-    userIconLink.addEventListener('click', function(event) {
-        // Prevent the link from navigating away
-        event.preventDefault(); 
-        
-        // Toggle the 'show' class, which is defined in CSS to show the menu
-        dropdownContent.classList.toggle('show');
-    });
-
-    // Close the dropdown if the user clicks anywhere outside of it
-    window.addEventListener('click', function(event) {
-        if (!userIconLink.contains(event.target) && !dropdownContent.contains(event.target)) {
-            if (dropdownContent.classList.contains('show')) {
-                dropdownContent.classList.remove('show');
-            }
-        }
-    });
-
-    /* *** BONUS: Simple front-end demonstration of login status switching ***
-    In a real app, this logic would come from the server!
-    You can uncomment the lines below to test the "logged in" state.
-    */
-    /*
-    // Example login/logout state simulator:
-    const isLoggedIn = true; // Change this to 'false' to test the Log In option
-
-    const loginOption = document.querySelector('.login-option');
-    const loggedInOptions = document.querySelectorAll('.logged-in-option');
-
-    if (isLoggedIn) {
-        loginOption.style.display = 'none';
-        loggedInOptions.forEach(el => el.style.display = 'block');
-    } else {
-        loginOption.style.display = 'block';
-        loggedInOptions.forEach(el => el.style.display = 'none');
-    }
-    */
-</script>
+    <script src="js/scipt.js"></script>
 </body>
 </html>

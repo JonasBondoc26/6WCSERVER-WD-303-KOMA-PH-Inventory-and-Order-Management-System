@@ -49,7 +49,7 @@ body {
 }
 
 .navbar-center .nav-links a:hover {
-  color: #888;
+  color: #a11515;
   text-decoration: underline;
 }
 
@@ -67,10 +67,10 @@ body {
 }
 
 .navbar-right .nav-icons a:hover {
-  color: #888;
+  color: #a11515;
 }
 
-/* Dropdown */
+/* User Dropdown */
 .user-dropdown {
   position: relative;
   display: inline-block;
@@ -78,33 +78,37 @@ body {
 }
 
 .dropdown-content {
-  display: none;
   position: absolute;
   right: 0;
-  top: 100%;
   background-color: #F4EAEA;
+  border-radius: 10px;
   min-width: 150px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
   z-index: 10;
-  border: 1px solid #e0d9d6;
 }
 
+/* Smooth dropdown open animation */
+.dropdown-content.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Dropdown links */
 .dropdown-content a {
-  color: #333;
-  padding: 8px 10px;
+  color: #281705;
+  padding: 12px 16px;
   text-decoration: none;
   display: block;
-  font-size: 0.9em;
-  font-weight: 400;
-}
-
-.dropdown-content a:hover {
-  background-color: #f1f1f1;
-  color: #333;
-}
-
-.dropdown-content.show {
-  display: block;
+  font-size: 0.95em;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
 }
 /* Nav */
 
@@ -112,59 +116,80 @@ body {
 /* --- HERO SECTION LAYOUT --- */
 .hero-section {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     overflow: hidden;
-    background-color: #2B2B2B; 
+    background-color: #2B2B2B;
     max-height: 600px;
+    padding: 60px 80px;
+    gap: 40px;
 }
 
-/*HERO CONTENT */
+/* --- HERO CONTENT --- */
 .hero-content {
-    padding: 60px 40px;
-    flex: 1; 
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding: 20px 0;
 }
 
 .hero-title {
-    font-family: 'Inter', sans-serif; 
-    font-size: 2.5rem;
-    font-weight: 600; 
-    margin-top: 0;
-    margin-bottom: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 20px;
     color: #FFFFFF;
 }
 
 .hero-text {
-    font-family: 'Inter', sans-serif; 
-    font-size: 1.1rem;
-    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.7;
     margin-bottom: 40px;
-    font-weight: 400; 
-    color: #FFFFFF;
-    
+    font-weight: 400;
+    color: #EAEAEA;
+    max-width: 550px;
 }
 
+/* --- HERO IMAGE (optional visual balance) --- */
+.hero-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.hero-image img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* --- BUTTON --- */
 .shop-button {
-    font-family: 'Crimson Text', serif; 
+    font-family: 'Crimson Text', serif;
     font-size: 1.2rem;
-    font-weight: 600; 
-    text-decoration: none; 
+    font-weight: 600;
+    text-decoration: none;
     text-align: center;
     background-color: #f7f7f7;
-    color: #333333; 
+    color: #333333;
     border: none;
-    border-radius: 6px;
-    padding: 15px 30px;
+    border-radius: 8px;
+    padding: 15px 35px;
     width: fit-content;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .shop-button:hover {
     background-color: #e0e0e0;
+    transform: translateY(-3px);
 }
+
 
 /* Core Values Section */
 .core-values-section {

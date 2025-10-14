@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOMA Profile Page - User Name</title>
+    <link rel="stylesheet" href="css/profile-style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="profile-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="photos/KOMA Logo.png" alt="KOMA Logo" class="koma-logo-img">
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" class="active">HOME</a></li>
+                    <li><a href="#">SHOP</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="user-header">
+                <div class="user-avatar"></div>
+                <div class="user-details">
+                    <div class="user-name">User Name</div>
+                    <div class="user-member-status">KOMA PH Member</div>
+                </div>
+                <button class="edit-profile-btn">Edit Profile</button>
+            </header>
+
+            <div class="key-metrics">
+                <div class="metric-card orders">
+                    <i class="fas fa-box-open"></i>
+                    <div class="metric-value">Total Orders</div>
+                    <div class="metric-number">12</div>
+                </div>
+                <div class="metric-card wishlist">
+                    <i class="far fa-heart"></i>
+                    <div class="metric-value">Wishlist Items</div>
+                    <div class="metric-number">0</div>
+                </div>
+                <div class="metric-card rewards">
+                    <i class="fas fa-trophy"></i>
+                    <div class="metric-value">Reward Points</div>
+                    <div class="metric-number">320</div>
+                </div>
+            </div>
+
+            <section class="recent-orders-section">
+                <div class="section-header">
+                    <i class="fas fa-clipboard-list"></i> Recent Orders
+                </div>
+                <div class="orders-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th># Order</th>
+                                <th># Item</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="# Order">#KMP-210</td>
+                                <td data-label="# Item">Oversized Tee</td>
+                                <td data-label="Status">Delivered</td>
+                                <td data-label="Date">Oct 3, 2025</td>
+                            </tr>
+                            <tr>
+                                <td data-label="# Order">#KMP-211</td>
+                                <td data-label="# Item">Streetwear Hoodie</td>
+                                <td data-label="Status" class="processing">Processing</td>
+                                <td data-label="Date">Oct 8, 2025</td>
+                            </tr>
+                            <tr>
+                                <td data-label="# Order">#KMP-212</td>
+                                <td data-label="# Item">Graphic Cap</td>
+                                <td data-label="Status" class="shipped">Shipped</td>
+                                <td data-label="Date">Oct 9, 2025</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="wishlist-section">
+                <div class="section-header">
+                    <i class="fas fa-heart"></i> Wishlist
+                </div>
+                <div class="wishlist-items-grid">
+                    <div class="wishlist-item">
+                        <div class="item-image" style="background-image: url('photos/PP1.png');"></div>
+                        <div class="item-name">Classic Black Hoodie</div>
+                        <button class="add-to-cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                    </div>
+
+                    <div class="wishlist-item">
+                        <div class="item-image" style="background-image: url('photos/PP2.png');"></div>
+                        <div class="item-name">Minimalist Cap</div>
+                        <button class="add-to-cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                    </div>
+
+                    <div class="wishlist-item">
+                        <div class="item-image" style="background-image: url('photos/PP3.png');"></div>
+                        <div class="item-name">Neutral Oversized Tee</div>
+                        <button class="add-to-cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

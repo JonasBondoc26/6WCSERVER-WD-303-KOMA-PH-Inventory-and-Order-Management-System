@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | KOMA PH</title>
+  <link rel="icon" type="image/png" href="photos/KOMA Logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/login-style.css">
+  <link rel="icon" type="image/png" href="photos/KOMA Logo.png">
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <div class="auth-card reverse">
+      <!-- RIGHT SIDE IMAGE -->
+      <div class="auth-right">
+        <div class="overlay">
+          <h3>JOIN THE KOMA COMMUNITY</h3>
+          <p>Redefining streetwear from Pampanga to the world.</p>
+        </div>
+      </div>
+
+      <!-- LEFT SIDE FORM -->
+      <div class="auth-left">
+        <a href="index.html"><img src="photos/KOMA Logo.png" alt="KOMA Logo" class="auth-logo"></a>
+        <h2>Create Account</h2>
+
+        <form class="auth-form" action="#" method="POST">
+
+          <div class="form-row">
+            <div class="floating-group" data-floater>
+              <input type="text" id="firstName" name="firstName" placeholder=" " required>
+              <label for="firstName">First Name</label>
+            </div>
+            <div class="floating-group" data-floater>
+              <input type="text" id="lastName" name="lastName" placeholder=" " required>
+              <label for="lastName">Last Name</label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label>Gender</label>
+              <div class="gender-group">
+                <label><input type="radio" name="gender" value="Male" required> Male</label>
+                <label><input type="radio" name="gender" value="Female"> Female</label>
+                <label><input type="radio" name="gender" value="Other"> Other</label>
+              </div>
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label>Date of Birth</label>
+              <input type="date" id="dob" name="dob" required>
+            </div>
+          </div>
+
+          <div class="floating-group" data-floater>
+            <input type="text" id="address" name="address" placeholder=" " required>
+            <label for="address">Address</label>
+          </div>
+
+          <div class="floating-group" data-floater>
+            <input type="tel" id="contact" name="contact" placeholder=" " required>
+            <label for="contact">Contact No.</label>
+          </div>
+
+          <div class="floating-group" data-floater>
+            <input type="email" id="email" name="email" placeholder=" " required>
+            <label for="email">Email</label>
+          </div>
+
+          <div class="form-row">
+            <div class="floating-group" data-floater>
+              <input type="text" id="username" name="username" placeholder=" " required>
+              <label for="username">Username</label>
+            </div>
+            <div class="floating-group" data-floater>
+              <input type="password" id="password" name="password" placeholder=" " required>
+              <label for="password">Password</label>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-btn">Sign Up</button>
+          <p class="switch-link">Already a member? <a href="sign-in.html">Sign In</a></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/floating-label.js"></script>
+</body>
+</html>

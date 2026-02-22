@@ -8,7 +8,9 @@ import bcrypt from "bcryptjs";
 console.log("MONGO_URI =", process.env.MONGO_URI);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL
+}));
 app.use(express.json());
 
 // ✅ Connect to MongoDB Atlas using your .env connection string

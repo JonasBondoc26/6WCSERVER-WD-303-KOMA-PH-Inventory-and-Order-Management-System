@@ -1,18 +1,25 @@
 // backend/server.js
+import 'dotenv/config'; // ✅ Loads .env automatically
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 
+console.log("MONGO_URI =", process.env.MONGO_URI);
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ Connect to MongoDB Atlas using your .env connection string
 mongoose
-  .connect("mongodb://127.0.0.1:27017/koma_db")
-  .then(() => console.log("✅ Connected to MongoDB"))
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
+// =====================
+// User Schema
+// =====================
 const userSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
@@ -22,7 +29,7 @@ const userSchema = new mongoose.Schema({
   contact: String,
   email: String,
   username: String,
-  password: String, // will be hashed
+  password: String,
   wishlist: [
     {
       productId: String,
@@ -41,7 +48,6 @@ const userSchema = new mongoose.Schema({
       meta: mongoose.Schema.Types.Mixed
     }
   ],
-  // NEW: cart stored per user
   cart: [
     {
       cartId: { type: String, required: true },
@@ -57,34 +63,20 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
+// =====================
+// Auth Routes
+// =====================
 app.post("/signup", async (req, res) => {
   try {
     const { firstName, lastName, gender, dob, address, contact, email, username, password } = req.body;
-
-    // Check if user already exists
     const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: "Username already taken" });
-    }
+    if (existingUser) return res.status(400).json({ message: "Username already taken" });
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user
     const newUser = new User({
-      firstName,
-      lastName,
-      gender,
-      dob,
-      address,
-      contact,
-      email,
-      username,
-      password: hashedPassword,
-      wishlist: [],
-      orders: []
+      firstName, lastName, gender, dob, address, contact, email, username, password: hashedPassword,
+      wishlist: [], orders: []
     });
-
     await newUser.save();
     res.status(201).json({ message: "User created successfully" });
   } catch (err) {
@@ -92,21 +84,15 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-//
-// 🧩 LOGIN
-//
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-
   try {
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
 
-    // Login successful: return the user object (excluding the password hash)
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
@@ -116,9 +102,9 @@ app.post("/login", async (req, res) => {
   }
 });
 
-//
-// Wishlist endpoints
-//
+// =====================
+// Wishlist Routes
+// =====================
 app.get("/users/:id/wishlist", async (req, res) => {
   try {
     const user = await User.findById(req.params.id, "wishlist");
@@ -135,7 +121,6 @@ app.post("/users/:id/wishlist", async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Prevent duplicates by productId
     const exists = user.wishlist.some(item => item.productId === productId);
     if (exists) return res.status(400).json({ message: "Item already in wishlist" });
 
@@ -161,9 +146,9 @@ app.delete("/users/:id/wishlist/:productId", async (req, res) => {
   }
 });
 
-//
-// Orders endpoints
-//
+// =====================
+// Orders Routes
+// =====================
 app.get("/users/:id/orders", async (req, res) => {
   try {
     const user = await User.findById(req.params.id, "orders");
@@ -188,9 +173,9 @@ app.post("/users/:id/orders", async (req, res) => {
   }
 });
 
-//
-// Cart endpoints
-//
+// =====================
+// Cart Routes
+// =====================
 app.get("/users/:id/cart", async (req, res) => {
   try {
     const user = await User.findById(req.params.id, "cart");
@@ -207,7 +192,6 @@ app.post("/users/:id/cart", async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Find existing by productId first, fallback to cartId
     let existing = null;
     if (productId) existing = user.cart.find(c => c.productId === productId);
     if (!existing && cartId) existing = user.cart.find(c => c.cartId === cartId);
@@ -215,15 +199,8 @@ app.post("/users/:id/cart", async (req, res) => {
     if (existing) {
       existing.quantity = (existing.quantity || 1) + (Number(quantity) || 1);
     } else {
-      const newCartId = cartId || String(Date.now()) + Math.random().toString(36).slice(2,8);
-      user.cart.push({
-        cartId: newCartId,
-        productId,
-        name,
-        image,
-        price,
-        quantity: Number(quantity) || 1
-      });
+      const newCartId = cartId || String(Date.now()) + Math.random().toString(36).slice(2, 8);
+      user.cart.push({ cartId: newCartId, productId, name, image, price, quantity: Number(quantity) || 1 });
     }
 
     await user.save();
@@ -265,39 +242,35 @@ app.delete("/users/:id/cart/:cartId", async (req, res) => {
   }
 });
 
-//
-// Update user profile
-//
+// =====================
+// Update Profile
+// =====================
 app.put("/users/:id", async (req, res) => {
   try {
-    const updates = req.body || {}
-    const allowed = ['firstName','lastName','gender','dob','address','contact','email','username','password']
-    const keys = Object.keys(updates).filter(k => allowed.includes(k))
-    if (!keys.length) return res.status(400).json({ message: "No valid fields to update" })
+    const updates = req.body || {};
+    const allowed = ['firstName', 'lastName', 'gender', 'dob', 'address', 'contact', 'email', 'username', 'password'];
+    const keys = Object.keys(updates).filter(k => allowed.includes(k));
+    if (!keys.length) return res.status(400).json({ message: "No valid fields to update" });
 
-    const user = await User.findById(req.params.id)
-    if (!user) return res.status(404).json({ message: "User not found" })
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // apply updates
     for (const k of keys) {
-      if (k === 'password') {
-        // hash new password
-        user.password = await bcrypt.hash(String(updates.password), 10)
-      } else {
-        user[k] = updates[k]
-      }
+      if (k === 'password') user.password = await bcrypt.hash(String(updates.password), 10);
+      else user[k] = updates[k];
     }
 
-    await user.save()
-    const obj = user.toObject()
-    delete obj.password
-    res.json({ message: "Profile updated", user: obj })
+    await user.save();
+    const obj = user.toObject();
+    delete obj.password;
+    res.json({ message: "Profile updated", user: obj });
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: err.message });
   }
-})
+});
 
-//
-// 🟢 Start Server
-//
-app.listen(5000, () => console.log("🚀 Server running on port 5000"));
+// =====================
+// Start server
+// =====================
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

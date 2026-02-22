@@ -161,6 +161,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getUserData, fetchWishlist, fetchOrders, removeWishlist, addToCart, logout } from '../assets/js/script.js'
+const API_URL = import.meta.env.VITE_API_URL
 
 const router = useRouter()
 const userName = ref('Guest')
@@ -256,7 +257,7 @@ async function saveProfile() {
     }
     if (form.value.password && form.value.password.trim()) payload.password = form.value.password
 
-    const res = await fetch(`http://localhost:5000/users/${id}`, {
+    const res = await fetch(`${API_URL}/users/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

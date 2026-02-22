@@ -83,6 +83,8 @@
 </template>
 
 <script>
+const API_URL = import.meta.env.VITE_API_URL
+
 export default {
   name: "SignUpPage",
   data() {
@@ -101,7 +103,7 @@ export default {
   methods: {
     async handleSignUp() {
       try {
-        const res = await fetch("http://localhost:5000/signup", {
+        const res = await fetch(`${API_URL}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

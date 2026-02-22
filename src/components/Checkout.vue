@@ -81,6 +81,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+const API_URL = import.meta.env.VITE_API_URL
 import {
   useCartSidebarLogic,
   updateCartItemQuantity,
@@ -187,7 +188,7 @@ async function placeOrder() {
     }
 
     // POST to backend
-    const res = await fetch(`http://localhost:5000/users/${info.id}/orders`, {
+    const res = await fetch(`${API_URL}/users/${info.id}/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

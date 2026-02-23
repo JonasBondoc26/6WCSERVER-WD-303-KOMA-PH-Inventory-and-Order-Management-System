@@ -1,5 +1,5 @@
 // Core API base
-const API_BASE = 'http://localhost:5000'
+const API_BASE = import.meta.env.VITE_API_URL
 
 let _wishlistCache = { ids: [], ts: 0, inFlight: null }
 const WISHLIST_TTL = 5000 // ms - cache duration to avoid frequent network calls

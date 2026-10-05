@@ -8,12 +8,13 @@ import bcrypt from "bcryptjs";
 console.log("MONGO_URI set:", Boolean(process.env.MONGO_URI));
 
 const app = express();
-// CLIENT_URL may be a comma-separated list; local Vite dev is always allowed
+// CLIENT_URL may be a comma-separated list; local Vite dev and any
+// *.netlify.app site (including deploy previews) are always allowed
 const allowedOrigins = (process.env.CLIENT_URL || "https://koma-ph.netlify.app")
   .split(",")
   .map(o => o.trim())
   .filter(Boolean)
-  .concat(["http://localhost:5173", "http://127.0.0.1:5173"]);
+  .concat(["http://localhost:5173", "http://127.0.0.1:5173", /^https:\/\/[a-z0-9-]+\.netlify\.app$/]);
 
 app.use(cors({
   origin: allowedOrigins

@@ -1,171 +1,115 @@
 <template>
-  <div class="wishlist-page">
-    <aside class="sidebar">
-      <RouterLink to="/" class="logo-link">
-        <img src="../assets/photos/KOMA logo white.png" alt="KOMA Logo" class="koma-logo-img" />
-      </RouterLink>
-
-      <nav class="main-nav">
-        <ul>
-          <li><RouterLink to="/">Home</RouterLink></li>
-          <li class="active"><RouterLink to="/profile">Profile</RouterLink></li>
-          <li><RouterLink to="/myorders">My Orders</RouterLink></li>
-          <li><RouterLink to="/wishlist">Wishlist</RouterLink></li>
-          <li><a href="#">Settings</a></li>
-          <li><button class="logout-btn" @click="logoutHandler">Logout</button></li>
-        </ul>
-      </nav>
-    </aside>
-
-    <main class="content">
-      <header class="content-header">
-        <div class="user-block">
-          <div class="user-avatar-small"></div>
-          <div class="user-info">
-            <h1 class="title">{{ userName }}</h1>
-            <p class="subtitle">{{ userEmail }}</p>
-          </div>
+  <AccountLayout :title="`Hi, ${profile.firstName || profile.username || 'there'}`" subtitle="Manage your details, orders and saved items.">
+    <section class="stats">
+      <div class="stat card">
+        <div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value">{{ orders.length }}</div>
         </div>
-
-        <div class="actions">
-          <button class="btn primary" @click="$router.push('/shop')">Continue Shopping</button>
+        <i class="fas fa-box-open"></i>
+      </div>
+      <div class="stat card">
+        <div>
+          <div class="stat-label">Wishlist Items</div>
+          <div class="stat-value">{{ wishlist.length }}</div>
         </div>
-      </header>
-
-      <section style="display:flex;gap:16px;margin-bottom:18px;">
-        <div class="card" style="flex:1;padding:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-size:12px;color:#7a7a86">Total Orders</div>
-              <div style="font-weight:700;font-size:20px">{{ orders.length }}</div>
-            </div>
-            <i class="fas fa-box-open" style="font-size:28px;color:#dce34d"></i>
-          </div>
+        <i class="fas fa-heart"></i>
+      </div>
+      <div class="stat card">
+        <div>
+          <div class="stat-label">Total Spent</div>
+          <div class="stat-value">{{ formatPrice(totalSpent) }}</div>
         </div>
+        <i class="fas fa-receipt"></i>
+      </div>
+    </section>
 
-        <div class="card" style="flex:1;padding:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-size:12px;color:#7a7a86">Wishlist Items</div>
-              <div style="font-weight:700;font-size:20px">{{ wishlist.length }}</div>
-            </div>
-            <i class="fas fa-heart" style="font-size:28px;color:#ff6b9a"></i>
-          </div>
+    <!-- Profile -->
+    <section class="panel card">
+      <div class="panel-head">
+        <h2>Profile Information</h2>
+        <button v-if="!editing" class="btn btn-ghost btn-sm" @click="startEdit"><i class="fas fa-pen"></i> Edit</button>
+      </div>
+
+      <dl v-if="!editing" class="info-list">
+        <div><dt>Name</dt><dd>{{ [profile.firstName, profile.lastName].filter(Boolean).join(' ') || '—' }}</dd></div>
+        <div><dt>Username</dt><dd>{{ profile.username || '—' }}</dd></div>
+        <div><dt>Email</dt><dd>{{ profile.email || '—' }}</dd></div>
+        <div><dt>Contact</dt><dd>{{ profile.contact || '—' }}</dd></div>
+        <div class="full"><dt>Address</dt><dd>{{ profile.address || '—' }}</dd></div>
+      </dl>
+
+      <form v-else class="profile-form" @submit.prevent="saveProfile">
+        <label class="field"><span>First name</span><input class="input" v-model.trim="form.firstName" autocomplete="given-name" /></label>
+        <label class="field"><span>Last name</span><input class="input" v-model.trim="form.lastName" autocomplete="family-name" /></label>
+        <label class="field"><span>Email</span><input class="input" v-model.trim="form.email" type="email" autocomplete="email" /></label>
+        <label class="field"><span>Contact</span><input class="input" v-model.trim="form.contact" type="tel" autocomplete="tel" /></label>
+        <label class="field"><span>Username</span><input class="input" v-model.trim="form.username" autocomplete="username" /></label>
+        <label class="field"><span>New password</span><input class="input" v-model="form.password" type="password" placeholder="Leave blank to keep" autocomplete="new-password" /></label>
+        <label class="field full"><span>Address</span><input class="input" v-model.trim="form.address" autocomplete="street-address" /></label>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" @click="cancelEdit">Cancel</button>
+          <button type="submit" class="btn btn-primary" :disabled="saving">{{ saving ? 'Saving…' : 'Save Changes' }}</button>
         </div>
+      </form>
+    </section>
 
-        <div class="card" style="flex:1;padding:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-size:12px;color:#7a7a86">Reward Points</div>
-              <div style="font-weight:700;font-size:20px">320</div>
-            </div>
-            <i class="fas fa-trophy" style="font-size:28px;color:#b8c13a"></i>
-          </div>
-        </div>
-      </section>
-
-      <!-- Profile edit card -->
-      <section class="card" style="padding:16px;margin-bottom:18px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <h3>Profile Information</h3>
+    <!-- Recent orders -->
+    <section class="panel card">
+      <div class="panel-head">
+        <h2>Recent Orders</h2>
+        <RouterLink v-if="orders.length" to="/myorders">View all</RouterLink>
+      </div>
+      <div v-if="orders.length" class="recent">
+        <div v-for="(o, idx) in orders.slice(0, 3)" :key="o.orderId || idx" class="recent-row">
           <div>
-            <button v-if="!editing" class="btn" @click="startEdit">Edit</button>
-            <button v-else class="btn" @click="cancelEdit">Cancel</button>
+            <strong>{{ o.orderId || ('#KMP-' + (100 + idx)) }}</strong>
+            <span class="muted">{{ formatDate(o.date) }} · {{ formatPrice(o.meta?.total) }}</span>
           </div>
+          <span class="status-pill" :class="statusClass(o.status)">{{ o.status || 'Processing' }}</span>
         </div>
+      </div>
+      <p v-else class="muted-text">No orders yet. <RouterLink to="/shop">Start shopping</RouterLink></p>
+    </section>
 
-        <div v-if="!editing">
-          <p><strong>Name:</strong> {{ profile.firstName || '' }} {{ profile.lastName || '' }}</p>
-          <p><strong>Email:</strong> {{ profile.email || '' }}</p>
-          <p><strong>Contact:</strong> {{ profile.contact || '' }}</p>
-          <p><strong>Address:</strong> {{ profile.address || '' }}</p>
-        </div>
-
-        <form v-else @submit.prevent="saveProfile" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <input v-model="form.firstName" placeholder="First name" />
-          <input v-model="form.lastName" placeholder="Last name" />
-          <input v-model="form.email" placeholder="Email" type="email" />
-          <input v-model="form.contact" placeholder="Contact" />
-          <input v-model="form.username" placeholder="Username" />
-          <input v-model="form.address" placeholder="Address" />
-          <input v-model="form.password" placeholder="New password (leave blank to keep)" type="password" />
-          <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end">
-            <button type="button" class="btn" @click="cancelEdit">Cancel</button>
-            <button type="submit" class="btn primary" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
+    <!-- Wishlist preview -->
+    <section class="panel card">
+      <div class="panel-head">
+        <h2>Saved Items</h2>
+        <RouterLink v-if="wishlist.length" to="/wishlist">View all</RouterLink>
+      </div>
+      <div v-if="wishlist.length" class="product-grid">
+        <article v-for="(item, index) in wishlist.slice(0, 4)" :key="item.productId || index" class="product-card card">
+          <div class="media">
+            <img :src="item.image || noImage" :alt="item.name" loading="lazy" />
           </div>
-        </form>
-      </section>
-
-      <!-- Recent orders -->
-      <section class="wishlist-grid" style="margin-bottom:18px;">
-        <div class="card" style="padding:16px;">
-          <h3 style="margin-bottom:12px">Recent Orders</h3>
-          <div v-if="orders.length">
-            <table style="width:100%;border-collapse:collapse">
-              <thead>
-                <tr>
-                  <th style="text-align:left;padding:8px 6px">Order #</th>
-                  <th style="text-align:left;padding:8px 6px">Item</th>
-                  <th style="text-align:left;padding:8px 6px">Status</th>
-                  <th style="text-align:left;padding:8px 6px">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(o, idx) in orders" :key="o.orderId || idx">
-                  <td style="padding:8px 6px">{{ o.orderId || ('#KMP-' + (100 + idx)) }}</td>
-                  <td style="padding:8px 6px">{{ o.item || (o.meta && o.meta.item) || '—' }}</td>
-                  <td :class="statusClass(o.status)" style="padding:8px 6px">{{ o.status || 'Processing' }}</td>
-                  <td style="padding:8px 6px">{{ formatDate(o.date) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else style="color:#7a7a86;padding:12px">No recent orders</div>
-        </div>
-      </section>
-
-      <!-- Wishlist (re-using wishlist design) -->
-      <section class="wishlist-grid">
-        <div class="grid" v-if="wishlist.length">
-          <article v-for="(item, index) in wishlist" :key="item.productId || index" class="card">
-            <div class="card-media" :style="{ backgroundImage: `url(${item.image || noImage})` }"></div>
-            <div class="card-body">
-              <h3 class="product-name">{{ item.name }}</h3>
-              <div class="meta-row">
-                <span class="price">{{ formatPrice(item.price) }}</span>
-                <div class="card-actions">
-                  <button class="btn add" @click="handleAddToCart(item)" aria-label="Add to cart">
-                    <i class="fas fa-cart-plus" aria-hidden="true"></i>
-                  </button>
-                  <button class="btn remove" @click="handleRemove(item.productId)" aria-label="Remove">
-                    <i class="fas fa-trash" aria-hidden="true"></i>
-                  </button>
-                </div>
-              </div>
+          <div class="body">
+            <h3 class="name">{{ item.name }}</h3>
+            <span class="price">{{ formatPrice(item.price) }}</span>
+            <div class="actions">
+              <button class="btn btn-primary btn-sm" @click="handleAddToCart(item)">Add to Cart</button>
+              <button class="square-btn" @click="handleRemove(item)" aria-label="Remove from wishlist">
+                <i class="far fa-trash-alt"></i>
+              </button>
             </div>
-          </article>
-        </div>
-
-        <div v-else class="empty-state">
-          <img src="../assets/photos/product3.png" alt="empty" class="empty-illustration" />
-          <h3>Your wishlist is empty</h3>
-          <p>Tap the heart on products to save them for later.</p>
-          <button class="btn primary" @click="$router.push('/shop')">Shop Now</button>
-        </div>
-      </section>
-    </main>
-  </div>
+          </div>
+        </article>
+      </div>
+      <p v-else class="muted-text">Tap the heart on products to save them for later.</p>
+    </section>
+  </AccountLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getUserData, fetchWishlist, fetchOrders, removeWishlist, addToCart, logout } from '../assets/js/script.js'
+import AccountLayout from './layout/AccountLayout.vue'
+import { getUserData, fetchWishlist, fetchOrders, removeWishlist, addToCart, reloadWishlist, useCartSidebarLogic } from '../assets/js/script.js'
+import { refreshAuth, toast } from '../assets/js/store.js'
 const API_URL = import.meta.env.VITE_API_URL
 
 const router = useRouter()
-const userName = ref('Guest')
-const userEmail = ref('Not Signed In')
+const { openSidebar } = useCartSidebarLogic(router)
 const wishlist = ref([])
 const orders = ref([])
 const noImage = new URL('../assets/photos/product3.png', import.meta.url).href
@@ -183,9 +127,12 @@ const form = ref({
 })
 const saving = ref(false)
 
+const totalSpent = computed(() =>
+  orders.value.reduce((s, o) => s + (Number(o.meta?.total) || 0), 0)
+)
+
 function statusClass(status) {
-  if (!status) return ''
-  const s = String(status).toLowerCase()
+  const s = String(status || 'processing').toLowerCase()
   if (s.includes('processing')) return 'processing'
   if (s.includes('shipped')) return 'shipped'
   if (s.includes('delivered')) return 'delivered'
@@ -199,36 +146,27 @@ function formatDate(d) {
 }
 
 function formatPrice(p) {
-  if (p == null) return ''
-  try { return `₱${Number(p).toLocaleString()}` } catch { return p }
+  if (p == null) return '₱0'
+  return `₱${Number(p).toLocaleString()}`
 }
 
 async function loadProfileData() {
   const info = getUserData()
   if (!info) return
-  const user = info.user || {}
-  const id = info.id
-  profile.value = user
-  if (user.firstName && user.lastName) userName.value = `${user.firstName} ${user.lastName}`
-  else if (user.username) userName.value = user.username
-  if (user.email) userEmail.value = user.email
+  profile.value = info.user || {}
 
-  if (id) {
-    wishlist.value = await fetchWishlist(id)
-    orders.value = await fetchOrders(id)
-  } else {
-    wishlist.value = JSON.parse(localStorage.getItem('userWishlist') || '[]')
+  if (info.id) {
+    const [w, o] = await Promise.all([fetchWishlist(info.id), fetchOrders(info.id)])
+    wishlist.value = w
+    orders.value = o
   }
 }
 
 function startEdit() {
   editing.value = true
-  form.value.firstName = profile.value.firstName || ''
-  form.value.lastName = profile.value.lastName || ''
-  form.value.email = profile.value.email || ''
-  form.value.contact = profile.value.contact || ''
-  form.value.address = profile.value.address || ''
-  form.value.username = profile.value.username || ''
+  for (const k of ['firstName', 'lastName', 'email', 'contact', 'address', 'username']) {
+    form.value[k] = profile.value[k] || ''
+  }
   form.value.password = ''
 }
 
@@ -241,7 +179,6 @@ async function saveProfile() {
   const info = getUserData()
   const id = info && info.id
   if (!id) {
-    alert('Please sign in to update profile.')
     router.push('/signin')
     return
   }
@@ -263,57 +200,73 @@ async function saveProfile() {
       body: JSON.stringify(payload)
     })
     if (!res.ok) {
-      const err = await res.json().catch(()=>({}))
+      const err = await res.json().catch(() => ({}))
       throw new Error(err.message || 'Failed to update profile')
     }
     const data = await res.json()
     const updated = data.user
     // update localStorage to keep UI helpers in sync
     try {
-      localStorage.setItem('currentUser', JSON.stringify({ user: updated, id: updated._id || updated.id }))
+      localStorage.setItem('currentUser', JSON.stringify(updated))
       localStorage.setItem('loggedInUser', JSON.stringify(updated))
       if (updated._id || updated.id) localStorage.setItem('userId', updated._id || updated.id)
-      if (updated.username) localStorage.setItem('username', updated.username)
+      if (updated.username) localStorage.setItem('username', updated.firstName || updated.username)
       if (updated.email) localStorage.setItem('email', updated.email)
     } catch (e) { /* ignore storage errors */ }
+    refreshAuth()
 
     editing.value = false
     await loadProfileData()
-    alert('Profile updated.')
+    toast('Profile updated')
   } catch (e) {
     console.error(e)
-    alert('Could not update profile.')
+    toast(e.message || 'Could not update profile.', 'error')
   } finally {
     saving.value = false
   }
 }
 
-async function handleRemove(productId) {
+async function handleRemove(item) {
   const info = getUserData()
   const id = info && info.id
   if (!id) return
   try {
-    await removeWishlist(id, productId)
-    wishlist.value = await fetchWishlist(id)
+    await removeWishlist(id, item.productId)
+    wishlist.value = wishlist.value.filter(w => w.productId !== item.productId)
+    reloadWishlist(id).catch(() => {})
+    toast('Removed from wishlist')
   } catch (e) {
     console.error(e)
-    alert('Could not remove item from wishlist.')
+    toast('Could not remove item from wishlist.', 'error')
   }
 }
 
-function handleAddToCart(item) {
-  addToCart(item)
+async function handleAddToCart(item) {
+  const ok = await addToCart({ ...item, id: item.productId })
+  if (ok) {
+    toast(`${item.name} added to cart`)
+    openSidebar()
+  } else {
+    toast('Could not add to cart.', 'error')
+  }
 }
 
-function logoutHandler() {
-  logout(router)
-}
-
-onMounted(() => {
-  loadProfileData()
-})
+onMounted(loadProfileData)
 </script>
 
 <style scoped>
 @import "../assets/css/profile-style.css";
+
+.info-list .full {
+  grid-column: 1 / -1;
+}
+
+.muted-text {
+  color: var(--muted);
+}
+
+.muted-text a {
+  font-weight: 700;
+  color: var(--ink);
+}
 </style>

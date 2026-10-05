@@ -1,102 +1,92 @@
 <template>
-  <div class="wishlist-page">
-    <aside class="sidebar">
-      <RouterLink to="/" class="logo-link">
-        <img src="../assets/photos/KOMA logo white.png" alt="KOMA Logo" class="koma-logo-img" />
-      </RouterLink>
+  <AccountLayout title="My Orders" :subtitle="isLoading ? '' : `${orders.length} order${orders.length === 1 ? '' : 's'}`">
+    <div v-if="isLoading" class="loading card"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
 
-      <nav class="main-nav">
-        <ul>
-          <li><RouterLink to="/">Home</RouterLink></li>
-          <li><RouterLink to="/profile">Profile</RouterLink></li>
-          <li class="active"><RouterLink to="/myorders">My Orders</RouterLink></li>
-          <li><RouterLink to="/wishlist">Wishlist</RouterLink></li>
-          <li><a href="#">Settings</a></li>
-          <li><button class="logout-btn" @click="logoutHandler">Logout</button></li>
-        </ul>
-      </nav>
-    </aside>
+    <div v-else-if="!orders.length" class="empty-state card">
+      <div class="icon"><i class="fas fa-box-open"></i></div>
+      <h3>No orders yet</h3>
+      <p>Your recent purchases will appear here.</p>
+      <RouterLink to="/shop" class="btn btn-primary">Shop Now</RouterLink>
+    </div>
 
-    <main class="content">
-      <header class="content-header">
-        <div class="user-block">
-          <div class="user-avatar-small"></div>
-          <div class="user-info">
-            <h1 class="title">My Orders</h1>
-            <p class="subtitle">{{ orders.length }} order<span v-if="orders.length !== 1">s</span></p>
+    <div v-else class="order-list">
+      <article
+        v-for="(order, idx) in orders"
+        :key="order.orderId || order._id || idx"
+        class="order-card card"
+        :class="{ open: openId === keyOf(order, idx) }"
+      >
+        <button class="order-summary" :aria-expanded="openId === keyOf(order, idx)" @click="toggle(order, idx)">
+          <div class="order-main">
+            <div class="order-id">Order {{ order.orderId || ('#KMP-' + (100 + idx)) }}</div>
+            <div class="order-meta">
+              <span>{{ formatDate(order.date) }}</span>
+              <span>Total: <strong>{{ formatPrice(order.meta?.total ?? order.total) }}</strong></span>
+              <span>{{ itemsOf(order).length || '—' }} item(s)</span>
+            </div>
+          </div>
+          <span class="status-pill" :class="statusClass(order.status)">{{ order.status || 'Processing' }}</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </button>
+
+        <div v-if="openId === keyOf(order, idx)" class="order-details">
+          <div v-if="itemsOf(order).length" class="order-items">
+            <div v-for="(it, i) in itemsOf(order)" :key="it.cartId || i" class="order-item">
+              <img v-if="it.image" :src="it.image" :alt="it.name" loading="lazy" />
+              <div class="grow">
+                <div>{{ it.name }}</div>
+                <div class="muted">Qty {{ it.quantity || 1 }} × {{ formatPrice(it.price) }}</div>
+              </div>
+              <strong>{{ formatPrice((Number(it.price) || 0) * (Number(it.quantity) || 1)) }}</strong>
+            </div>
+          </div>
+          <p v-else class="order-items">{{ order.item || 'No item details saved for this order.' }}</p>
+
+          <div v-if="order.meta?.shippingInfo" class="order-ship">
+            <div><span>Ship to</span>{{ order.meta.shippingInfo.name }}</div>
+            <div><span>Address</span>{{ order.meta.shippingInfo.address }}</div>
+            <div><span>Payment</span>{{ paymentLabel(order.meta.paymentMethod) }}</div>
           </div>
         </div>
-
-        <div class="actions">
-          <button class="btn primary" @click="$router.push('/shop')">Continue Shopping</button>
-        </div>
-      </header>
-
-      <section class="wishlist-grid">
-        <div v-if="isLoading" class="empty-state">
-          Loading...
-        </div>
-
-        <div v-else-if="!orders.length" class="empty-state">
-          <img src="../assets/photos/product3.png" alt="empty" class="empty-illustration" />
-          <h3>No orders yet</h3>
-          <p>Your recent purchases will appear here.</p>
-          <button class="btn primary" @click="$router.push('/shop')">Shop Now</button>
-        </div>
-
-        <div v-else class="grid">
-          <article v-for="(order, idx) in orders" :key="order.orderId || order.id || idx" class="card">
-            <div class="card-body" style="padding:16px;">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-                <div style="flex:1;min-width:0">
-                  <h3 class="product-name" style="margin-bottom:6px">Order {{ order.orderId || order.id || ('#KMP-' + (100 + idx)) }}</h3>
-                  <div style="color:#7a7a86;font-size:13px;margin-bottom:8px">
-                    {{ order.item || (order.meta && order.meta.item) || '—' }}
-                  </div>
-
-                  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
-                    <div style="font-size:13px;color:#7a7a86">
-                      Date: <strong style="color:#0f1724">{{ formatDate(order.date) }}</strong>
-                    </div>
-                    <div style="font-size:13px;color:#7a7a86">
-                      Total: <strong style="color:#0f1724">{{ formatPrice(order.meta?.total || order.total) }}</strong>
-                    </div>
-                    <div style="font-size:13px;">
-                      Status: <span :class="statusClass(order.status)" style="font-weight:600">{{ order.status || 'Processing' }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
-                  <button class="btn add" @click="viewOrder(order)" aria-label="View order">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-    </main>
-  </div>
+      </article>
+    </div>
+  </AccountLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getUserData, fetchOrders, logout } from '../assets/js/script.js';
+import AccountLayout from './layout/AccountLayout.vue'
+import { getUserData, fetchOrders } from '../assets/js/script.js';
 
 const router = useRouter();
 const orders = ref([]);
 const isLoading = ref(true);
+const openId = ref(null);
+
+function keyOf(order, idx) {
+  return order.orderId || order._id || idx;
+}
+
+function toggle(order, idx) {
+  const k = keyOf(order, idx);
+  openId.value = openId.value === k ? null : k;
+}
+
+function itemsOf(order) {
+  return Array.isArray(order.meta?.items) ? order.meta.items : [];
+}
 
 function statusClass(status) {
-  if (!status) return '';
-  const s = String(status).toLowerCase();
+  const s = String(status || 'processing').toLowerCase();
   if (s.includes('processing')) return 'processing';
   if (s.includes('shipped')) return 'shipped';
   if (s.includes('delivered')) return 'delivered';
   return '';
+}
+
+function paymentLabel(m) {
+  return { cod: 'Cash on Delivery', gcash: 'GCash', bank: 'Bank Transfer' }[m] || m || '—';
 }
 
 function formatDate(d) {
@@ -106,8 +96,8 @@ function formatDate(d) {
 }
 
 function formatPrice(p) {
-  if (!p) return '';
-  try { return `₱${Number(p).toLocaleString()}` } catch { return p; }
+  if (p == null || p === '') return '—';
+  return `₱${Number(p).toLocaleString()}`;
 }
 
 async function loadOrders() {
@@ -121,20 +111,9 @@ async function loadOrders() {
   isLoading.value = false;
 }
 
-function viewOrder(order) {
-  alert(`Viewing details for ${order.orderId || order.id || 'Order'}`);
-}
-
-function logoutHandler() {
-  logout(router);
-}
-
-onMounted(() => {
-  loadOrders();
-});
+onMounted(loadOrders);
 </script>
 
 <style scoped>
 @import "../assets/css/profile-style.css";
 </style>
-

@@ -5,11 +5,18 @@ import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 
-console.log("MONGO_URI =", process.env.MONGO_URI);
+console.log("MONGO_URI set:", Boolean(process.env.MONGO_URI));
 
 const app = express();
+// CLIENT_URL may be a comma-separated list; local Vite dev is always allowed
+const allowedOrigins = (process.env.CLIENT_URL || "https://koma-ph.netlify.app")
+  .split(",")
+  .map(o => o.trim())
+  .filter(Boolean)
+  .concat(["http://localhost:5173", "http://127.0.0.1:5173"]);
+
 app.use(cors({
-  origin: 'https://koma-ph.netlify.app'
+  origin: allowedOrigins
 }));
 app.use(express.json());
 
@@ -89,7 +96,8 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {
-    const user = await User.findOne({ username });
+    // accept either username or email in the login field
+    const user = await User.findOne({ $or: [{ username }, { email: username }] });
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -168,6 +176,7 @@ app.post("/users/:id/orders", async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     user.orders.push({ orderId, item, status: status || "Processing", meta });
+    user.cart = []; // ordered items leave the cart
     await user.save();
     res.status(201).json({ message: "Order added", orders: user.orders });
   } catch (err) {
@@ -225,6 +234,20 @@ app.put("/users/:id/cart/:cartId", async (req, res) => {
     if (quantity != null) item.quantity = Number(quantity);
     await user.save();
     res.json({ message: "Cart item updated", cart: user.cart });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// clear the whole cart (after an order is placed)
+app.delete("/users/:id/cart", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.cart = [];
+    await user.save();
+    res.json({ message: "Cart cleared", cart: [] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

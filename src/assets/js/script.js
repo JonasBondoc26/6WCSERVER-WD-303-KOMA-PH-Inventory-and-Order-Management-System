@@ -1,3 +1,6 @@
+import { ref } from 'vue'
+import { refreshAuth } from './store.js'
+
 // Core API base
 const API_BASE = import.meta.env.VITE_API_URL
 
@@ -20,92 +23,113 @@ export async function fetchCart(userId) {
   }
 }
 
-export function useCartSidebarLogic(ref, computed, router) {
-  const isCartSidebarOpen = ref(false)
+// ---------------- Shared cart state ----------------
+// One cart for the whole app: the header badge, the cart drawer and the
+// checkout page all read the same refs.
 
-  function loadCartFromStorage() {
-    try {
-      const cart = JSON.parse(localStorage.getItem('userCart') || '[]')
-      return Array.isArray(cart) ? cart : []
-    } catch (e) {
-      console.error('Error parsing cart data from localStorage:', e)
-      return []
-    }
+function loadCartFromStorage() {
+  try {
+    const cart = JSON.parse(localStorage.getItem('userCart') || '[]')
+    return Array.isArray(cart) ? cart : []
+  } catch (e) {
+    console.error('Error parsing cart data from localStorage:', e)
+    return []
   }
+}
 
-  // reactive cart list (keeps UI in sync when localStorage changes)
-  const cartItems = ref(loadCartFromStorage())
+const isCartSidebarOpen = ref(false)
+const cartItems = ref(loadCartFromStorage())
+let _cartListenersReady = false
 
-  // reload the reactive cart ref from server (if logged in) or localStorage
-  async function reloadCart() {
-    try {
-      const info = getUserData()
-      if (info && info.id) {
-        const serverCart = await fetchCart(info.id)
-        cartItems.value = serverCart
-        try { localStorage.setItem('userCart', JSON.stringify(serverCart)) } catch {}
-      } else {
-        cartItems.value = loadCartFromStorage()
-      }
-    } catch (e) {
-      console.error('reloadCart error:', e)
+// reload the cart from server (if logged in) or localStorage
+async function reloadCart() {
+  try {
+    const info = getUserData()
+    if (info && info.id) {
+      const serverCart = await fetchCart(info.id)
+      cartItems.value = serverCart
+      try { localStorage.setItem('userCart', JSON.stringify(serverCart)) } catch {}
+    } else {
       cartItems.value = loadCartFromStorage()
     }
+  } catch (e) {
+    console.error('reloadCart error:', e)
+    cartItems.value = loadCartFromStorage()
+  }
+}
+
+export function useCartSidebarLogic(router) {
+  if (!_cartListenersReady) {
+    _cartListenersReady = true
+    reloadCart().catch(() => {})
+    // other helpers dispatch this after changing the cart
+    window.addEventListener('koma_cart_updated', () => { reloadCart().catch(() => {}) })
+    // other tabs
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'userCart' || e.key === 'currentUser' || e.key === 'isLoggedIn') reloadCart().catch(() => {})
+    })
   }
 
-  // initial load
-  reloadCart().catch(()=>{})
-
-  // listen for custom event so other helpers can notify updates
-  window.addEventListener('koma_cart_updated', () => { reloadCart().catch(()=>{}) })
-  // also listen for native storage event (other tabs)
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'userCart' || e.key === 'currentUser' || e.key === 'isLoggedIn') reloadCart().catch(()=>{})
-  })
-
-  // Toggles the sidebar visibility with a login check
+  // Toggles the drawer; guests are sent to sign in
   function handleOrders() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
-    if (!isLoggedIn) {
-        // navigate to signin rather than blocking alert
-        if (router && typeof router.push === 'function') router.push('/signin')
-        return
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      isCartSidebarOpen.value = false
+      if (router && typeof router.push === 'function') router.push('/signin')
+      return
     }
     isCartSidebarOpen.value = !isCartSidebarOpen.value
   }
 
-  // Routes to checkout page (and closes sidebar)
-  function goToCheckoutPage() {
-      isCartSidebarOpen.value = false
-      if (router && typeof router.push === 'function') {
-        router.push('/checkout')
-      } else {
-        window.location.href = '/#/checkout'
-      }
+  function closeSidebar() {
+    isCartSidebarOpen.value = false
   }
 
-  // Routes to the orders page (and closes sidebar)
-  function goToOrdersPage() {
-      isCartSidebarOpen.value = false
-      if (router && typeof router.push === 'function') router.push('/myorders')
-      else window.location.href = '/#/myorders'
-  }
-
-  // Expose function to allow Shop.vue to open the sidebar after 'Buy Now'
   function openSidebar() {
-      isCartSidebarOpen.value = true
+    isCartSidebarOpen.value = true
   }
 
-  // expose reload so callers can force a refresh if needed
+  function goToCheckoutPage() {
+    isCartSidebarOpen.value = false
+    router.push('/checkout')
+  }
+
+  function goToOrdersPage() {
+    isCartSidebarOpen.value = false
+    router.push('/myorders')
+  }
+
   return {
     isCartSidebarOpen,
     cartItems,
     handleOrders,
+    openSidebar,
+    closeSidebar,
     goToCheckoutPage,
     goToOrdersPage,
-    openSidebar,
     reloadCart
   }
+}
+
+// Empty the cart on the server and locally (used after placing an order)
+export async function clearCart() {
+  const info = getUserData()
+  if (info && info.id) {
+    try {
+      const res = await fetch(`${API_BASE}/users/${info.id}/cart`, { method: 'DELETE' })
+      if (!res.ok) {
+        // older backend without the clear-all route: remove items one by one
+        const items = await fetchCart(info.id)
+        await Promise.all(items.map(it =>
+          fetch(`${API_BASE}/users/${info.id}/cart/${encodeURIComponent(it.cartId)}`, { method: 'DELETE' })
+        ))
+      }
+    } catch (e) {
+      console.error('clearCart error:', e)
+    }
+  }
+  try { localStorage.setItem('userCart', '[]') } catch {}
+  cartItems.value = []
+  try { window.dispatchEvent(new Event('koma_cart_updated')) } catch {}
 }
 
 // Export Product Data
@@ -126,47 +150,6 @@ export const driftProducts = [
 ];
 
 // ---------------- Navbar & user helpers ----------------
-
-export function setupNavbarLogic(router) {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
-
-  const userIconLink = document.getElementById('userIcon')
-  const dropdownContent = document.getElementById('userDropdownContent')
-
-  userIconLink?.addEventListener('click', (event) => {
-    event.preventDefault()
-    dropdownContent?.classList.toggle('show')
-  })
-
-  window.addEventListener('click', (event) => {
-    if (!userIconLink?.contains(event.target) && !dropdownContent?.contains(event.target)) {
-      dropdownContent?.classList.remove('show')
-    }
-  })
-
-  const loginOption = document.querySelector('.login-option')
-  const loggedInOptions = document.querySelectorAll('.logged-in-option')
-
-  if (isLoggedIn) {
-    loginOption?.setAttribute('style', 'display: none;')
-    loggedInOptions.forEach(opt => opt.setAttribute('style', 'display: block;'))
-  } else {
-    loginOption?.setAttribute('style', 'display: block;')
-    loggedInOptions.forEach(opt => opt.setAttribute('style', 'display: none;'))
-  }
-
-  const logoutBtn = document.querySelector('.logout-btn')
-  logoutBtn?.addEventListener('click', (e) => {
-    e.preventDefault()
-    try {
-      logout(router)
-    } catch (err) {
-      localStorage.removeItem('isLoggedIn')
-      localStorage.removeItem('username')
-      window.location.reload()
-    }
-  })
-}
 
 export function goToWishlist(router) {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
@@ -514,9 +497,13 @@ export function logout(router) {
     'userId','_id','userCart','userWishlist'
   ]
   for (const k of keys) localStorage.removeItem(k)
+  // reset shared state instead of reloading the page
+  cartItems.value = []
+  isCartSidebarOpen.value = false
+  _wishlistCache = { ids: [], ts: 0, inFlight: null }
+  refreshAuth()
   if (router && typeof router.push === 'function') router.push('/signin')
   else try { window.location.href = '/signin' } catch {}
-  setTimeout(() => window.location.reload(), 120)
 }
 
 // ---------- CART ITEM UPDATE / REMOVE HELPERS ----------

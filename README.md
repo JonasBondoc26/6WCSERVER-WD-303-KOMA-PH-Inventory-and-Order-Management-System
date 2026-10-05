@@ -2,7 +2,7 @@
 
 **Keep On Moving Ahead.** An online store and order management system for **KOMA PH**, a Filipino streetwear brand from Pampanga, built with the **MEVN** stack (MongoDB, Express, Vue, Node.js).
 
-🌐 **Live site:** [koma-ph.netlify.app](https://koma-ph-store.netlify.app)
+🌐 **Live site:** [koma-ph-store.netlify.app](https://koma-ph-store.netlify.app)
 
 ## About the Project
 
